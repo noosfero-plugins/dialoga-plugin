@@ -1,6 +1,6 @@
 class DialogaPluginMyprofileController < MyProfileController
 
-  protect 'perform_task', :profile
+  before_filter :is_admin
 
   def send_report
     path = File.join(Rails.root,'plugins','dialoga','script')
@@ -12,5 +12,11 @@ class DialogaPluginMyprofileController < MyProfileController
     session[:notice] = _("The report wil be sent to email #{current_person.email}")
     redirect_to :back
   end
+
+  protected
+  def is_admin
+    render_access_denied unless current_person.is_admin?
+  end
+
 
 end
