@@ -7,6 +7,7 @@ class DialogaPluginMyprofileController < MyProfileController
     scripts = ['sent_event_report', 'sent_proposal_report']
     scripts.map do |script|
       cmd = File.join(path,script) + ' ' + current_person.email.to_s
+#raise IO.popen(cmd).read.inspect
       fork {IO.popen(cmd).read}
     end
     session[:notice] = _("The report wil be sent to email #{current_person.email}")

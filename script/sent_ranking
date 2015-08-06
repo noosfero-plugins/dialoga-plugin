@@ -1,0 +1,21 @@
+#!/usr/bin/env ruby
+# encoding: UTF-8
+
+require_relative '../../../config/environment'
+
+puts 'Iniciando script ranking'
+
+directory = File.join(Rails.root,'data')
+Dir.mkdir(directory) unless File.exists?(directory)
+
+discussion = ProposalsDiscussionPlugin::Discussion.first
+
+articles = discussion.topics
+articles.each do |article|
+  puts "#{article.slug}"
+  ranking = article.ranking
+  CSV.open(File.join(Rails.root,'data',"ranking_#{article.slug}.csv"), 'w' ) do |csv|
+    csv << ['Posição', 'Id', 'Proposta', 'Positivo', 'Negativo', 'Exibições', 'Valor']
+    ranking.each_with_index {|r, i| csv << [i+1, r.values].flatten}
+  end
+end
