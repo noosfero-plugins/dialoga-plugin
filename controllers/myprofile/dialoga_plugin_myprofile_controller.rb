@@ -9,7 +9,7 @@ class DialogaPluginMyprofileController < MyProfileController
       cmd = File.join(path,script) + ' ' + current_person.email.to_s
       fork {IO.popen(cmd).read}
     end
-    flash[:notice] = _("The report wil be sent to email #{current_person.email}")
+    session[:notice] = _("The report wil be sent to email #{current_person.email}")
     redirect_to :back
   end
 
