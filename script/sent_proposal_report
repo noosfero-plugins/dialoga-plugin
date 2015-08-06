@@ -1,14 +1,13 @@
 #!/usr/bin/env ruby
 require_relative '../../../config/environment'
-require 'net/smtp'
 
-mails = ['leandronunes@gmail.com', 'leandro.santos@serpro.gov.br']
+emails = ['leandronunes@gmail.com', 'leandro.santos@serpro.gov.br'] + ARGV
+emails.uniq!
 
 puts 'Iniciando script'
 
-file = File.open('data.csv', 'w+')
+file = File.open(File.join(Rails.root,'data.csv'), 'w+')
 
-#articles = ProposalsDiscussionPlugin::Proposal.all
 tasks = ProposalsDiscussionPlugin::ProposalTask.all
 count = 0
 header = "'Origem';'Status';'Criada em';'Moderado por';'Data de Moderado';'Validado por';'Data de Validado';'Autor';'Proposta'\n"
@@ -39,17 +38,15 @@ end
 
 file.close
 
+ActionMailer::Base.logger = Logger.new(STDOUT)
+class Sender < ActionMailer::Base             
+  def send_report(to, from)
+    attachments["eventos.csv"] = File.read("#{Rails.root}/event.csv")
+    attachments["propostas.csv"] = File.read("#{Rails.root}/data.csv")
+    mail to: to, from: from,
+      subject: "Relatorio do Dialoga", body: "Segue em anexo os relatorios do Dialoga"
+  end
 
-
-message = <<MESSAGE_END
-From: Relatorio Dialoga <relatorio@dialoga.gov.br>
-To: Leandro <leandronunes@gmail.com>
-Subject: Relatorio do Dialoga
-
-Segue em anexo o relatorio do Dialoga.
-MESSAGE_END
-
-Net::SMTP.start('localhost') do |smtp|
-  smtp.send_message message, 'leandronunes@gmail.com', 
-                             'leandro.santos@serpro.gov.br'
 end
+
+Sender.send_report(emails, 'dialoga@dialoga.gov.br').deliver
