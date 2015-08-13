@@ -4,7 +4,7 @@ class DialogaPluginMyprofileController < MyProfileController
 
   def send_report
     path = File.join(Rails.root,'plugins','dialoga','script')
-    scripts = ['sent_event_report', 'sent_proposal_report']
+    scripts = ['exec_scripts']
     scripts.map do |script|
       cmd = File.join(path,script) + ' ' + current_person.email.to_s
       fork {IO.popen(cmd).read}

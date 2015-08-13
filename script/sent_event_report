@@ -2,12 +2,9 @@
 # encoding: UTF-8
 require_relative '../../../config/environment'
 
-puts 'Iniciando script eventos'
+puts 'Iniciando script'
 
-directory = File.join(Rails.root,'data')
-Dir.mkdir(directory) unless File.exists?(directory)
-
-file = File.open(File.join(directory,'event.csv'), 'w+')
+file = File.open(File.join(ARGV, 'event.csv'), 'w+')
 
 events = Event.all
 events.map do |event|

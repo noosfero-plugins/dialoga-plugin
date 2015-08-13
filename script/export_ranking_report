@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+# encoding: UTF-8
+require_relative '../../../config/environment'
+
+#discussion = Article.find(402)
+discussion = ProposalsDiscussionPlugin::Discussion.first
+#discussion = Article.find(103358)
+
+articles = discussion.topics
+articles.each do |article|
+  ranking = article.ranking
+  #file = File.open(File.join(Rails.root, "reports_dir", "ranking_#{article.slug}.csv"), 'w+')
+  file = File.open(File.join(ARGV, "ranking_#{article.slug}.csv"), 'w+')
+  #CSV.open( "ranking_#{article.slug}.csv", 'w' ) do |csv|
+  	#print "\nCSV is: #{csv.class}"
+    #csv << ['Posição', 'Id', 'Proposta', 'Positivo', 'Negativo', 'Exibições', 'Valor']
+    file.write(['Posição', 'Id', 'Proposta', 'Positivo', 'Negativo', 'Exibições', 'Valor'].join(', '))
+    file.write("\n")
+    #file.write(info.map{|i| "'" + i.to_s + "'"}.join(";"))
+    #ranking.each_with_index {|r, i| csv << [i+1, r.values].flatten}
+    ranking.each_with_index { |r, i| 
+    	file.write([i+1, r.values].flatten.join(', '))
+    	file.write("\n")
+    }
+    file.write("\n")
+    file.close
+  #end
+end
+

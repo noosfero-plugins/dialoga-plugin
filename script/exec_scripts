@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+# encoding: UTF-8
+require_relative '../../../config/environment'
+#require 'zip'
+require_relative 'zipfilegenerator'
+
+# The emails to send the report.
+emails = ['leandronunes@gmail.com', 'leandro.santos@serpro.gov.br'] + ARGV
+emails.uniq!
+
+# All reports will go to this path
+reports_dir_path = File.join(Rails.root, "reports_dir")
+if (Dir.exist?(reports_dir_path))
+	FileUtils.rm_rf(reports_dir_path)
+end
+Dir.mkdir(reports_dir_path, 0700) #=> 0
+
+path = File.join(Rails.root,'plugins','dialoga','script')
+scripts = ['export_ranking_report', 'sent_event_report', 'sent_proposal_report']
+scripts.map do |script|
+	cmd = File.join(path,script) + ' ' + reports_dir_path
+  	IO.popen(cmd).read
+end
+
+# Compress all files in reports_dir_path to a file named reports_dir.zip
+# in this same directory
+outputFile = File.join(reports_dir_path, "reports_dir.zip")
+zf = ZipFileGenerator.new(reports_dir_path, outputFile)
+zf.write()
+
+ActionMailer::Base.logger = Logger.new(STDOUT)
+class Sender < ActionMailer::Base             
+  def send_report(to, from, path)
+    attachments["reports_dir.zip"] = File.read(path)
+    mail to: to, from: from,
+      subject: "Relatorio do Dialoga", body: "Segue em anexo os relatorios do Dialoga"
+  end
+end
+
+Sender.send_report(emails, 'dialoga@dialoga.gov.br', outputFile).deliver

@@ -2,15 +2,10 @@
 # encoding: UTF-8
 require_relative '../../../config/environment'
 
-directory = File.join(Rails.root,'data')
-Dir.mkdir(directory) unless File.exists?(directory)
-
-emails = ['leandronunes@gmail.com', 'leandro.santos@serpro.gov.br'] + ARGV
-emails.uniq!
-
 puts 'Iniciando script propostas'
 
-file = File.open(File.join(directory,'data.csv'), 'w+')
+file = File.open(File.join(ARGV, 'data.csv'), 'w+')
+
 
 tasks = ProposalsDiscussionPlugin::ProposalTask.all
 count = 0
@@ -42,16 +37,3 @@ end
 
 file.close
 
-ActionMailer::Base.logger = Logger.new(STDOUT)
-class Sender < ActionMailer::Base             
-  def send_report(to, from)
-    directory = File.join(Rails.root,'data')
-    attachments["eventos.csv"] = File.read("#{directory}/event.csv")
-    attachments["propostas.csv"] = File.read("#{directory}/data.csv")
-    mail to: to, from: from,
-      subject: "Relatorio do Dialoga", body: "Segue em anexo os relatorios do Dialoga"
-  end
-
-end
-
-Sender.send_report(emails, 'dialoga@dialoga.gov.br').deliver
