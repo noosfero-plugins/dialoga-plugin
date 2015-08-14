@@ -2,7 +2,7 @@
 # encoding: UTF-8
 include ActionDispatch::TestProcess
 
-puts 'Iniciando script eventos'
+puts 'Iniciando script'
 
 filebasepath = '/tmp/'
 
