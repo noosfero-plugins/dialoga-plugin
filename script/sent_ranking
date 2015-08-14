@@ -1,12 +1,19 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
-
-require_relative '../../../config/environment'
+include ActionDispatch::TestProcess
+require 'csv'
 
 puts 'Iniciando script ranking'
 
-directory = File.join(Rails.root,'data')
-Dir.mkdir(directory) unless File.exists?(directory)
+filebasepath = '/tmp/'
+
+dialoga = Community['dialoga']
+root_report_folder = dialoga.folders.where(:slug => 'relatorios').first
+root_report_folder ||= Folder.create!(:profile => dialoga, :name => 'Relatorios')
+
+report_folder = Folder.find_by_slug(DateTime.now.strftime('%Y-%m-%d'))
+
+report_folder ||= Folder.create!(:profile => dialoga, :name => DateTime.now.strftime('%Y-%m-%d'), :parent => root_report_folder)
 
 discussion = ProposalsDiscussionPlugin::Discussion.first
 
@@ -14,8 +21,11 @@ articles = discussion.topics
 articles.each do |article|
   puts "#{article.slug}"
   ranking = article.ranking
-  CSV.open(File.join(Rails.root,'data',"ranking_#{article.slug}.csv"), 'w' ) do |csv|
+  filepath = filebasepath + DateTime.now.strftime('%Y-%m-%d-%H-%m-%S') + '-' + "ranking_#{article.slug}.csv"
+  CSV.open(filepath, 'w' ) do |csv|
     csv << ['Posição', 'Id', 'Proposta', 'Positivo', 'Negativo', 'Exibições', 'Valor']
     ranking.each_with_index {|r, i| csv << [i+1, r.values].flatten}
   end
+  uploaded_file = UploadedFile.new(:uploaded_data => fixture_file_upload(filepath, 'text/csv'), :profile => dialoga, :parent => report_folder)
+  uploaded_file.save
 end

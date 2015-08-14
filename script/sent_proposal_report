@@ -1,16 +1,23 @@
 #!/usr/bin/env ruby
 # encoding: UTF-8
-require_relative '../../../config/environment'
-
-directory = File.join(Rails.root,'data')
-Dir.mkdir(directory) unless File.exists?(directory)
-
-emails = ['leandronunes@gmail.com', 'leandro.santos@serpro.gov.br'] + ARGV
-emails.uniq!
+include ActionDispatch::TestProcess
 
 puts 'Iniciando script propostas'
 
-file = File.open(File.join(directory,'data.csv'), 'w+')
+filebasepath = '/tmp/'
+
+dialoga = Community['dialoga']
+root_report_folder = dialoga.folders.where(:slug => 'relatorios').first
+root_report_folder ||= Folder.create!(:profile => dialoga, :name => 'Relatorios')
+
+report_folder = Folder.find_by_slug(DateTime.now.strftime('%Y-%m-%d'))
+
+report_folder ||= Folder.create!(:profile => dialoga, :name => DateTime.now.strftime('%Y-%m-%d'), :parent => root_report_folder)
+
+
+
+filepath = filebasepath + DateTime.now.strftime('%Y-%m-%d-%H-%m-%S') + '-' + 'propostas.csv'
+file = File.open(filepath, 'w+')
 
 tasks = ProposalsDiscussionPlugin::ProposalTask.all
 count = 0
@@ -42,16 +49,5 @@ end
 
 file.close
 
-ActionMailer::Base.logger = Logger.new(STDOUT)
-class Sender < ActionMailer::Base             
-  def send_report(to, from)
-    directory = File.join(Rails.root,'data')
-    attachments["eventos.csv"] = File.read("#{directory}/event.csv")
-    attachments["propostas.csv"] = File.read("#{directory}/data.csv")
-    mail to: to, from: from,
-      subject: "Relatorio do Dialoga", body: "Segue em anexo os relatorios do Dialoga"
-  end
-
-end
-
-Sender.send_report(emails, 'dialoga@dialoga.gov.br').deliver
+uploaded_file = UploadedFile.new(:uploaded_data => fixture_file_upload(filepath, 'text/csv'), :profile => dialoga, :parent => report_folder)
+uploaded_file.save
