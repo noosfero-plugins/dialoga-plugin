@@ -49,8 +49,5 @@ end
 
 file.close
 
-<<<<<<< HEAD
 uploaded_file = UploadedFile.new(:uploaded_data => fixture_file_upload(filepath, 'text/csv'), :profile => dialoga, :parent => report_folder)
 uploaded_file.save
-=======
->>>>>>> 190120b4af270bd5d767faf5253c488e216f11b8
