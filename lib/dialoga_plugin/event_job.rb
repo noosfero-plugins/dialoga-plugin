@@ -10,7 +10,7 @@ class DialogaPlugin::EventJob < DialogaPlugin::ReportJob
   def create_event_report(profile, report_folder)
     events = Event.where(:profile_id => profile.id)
     events.map do |event|
-      filepath = '/tmp/' + DateTime.now.strftime('%Y-%m-%d-%H-%m-%S') + '-' + event.slug
+      filepath = '/tmp/' + DateTime.now.strftime('%Y-%m-%d-%H-%m-%S') + '-' + event.slug + '.csv'
       file = File.open(File.join(filepath), 'w+')
       file.write(event.name+ "\n")
       header = "'Nome';'Email'\n"
