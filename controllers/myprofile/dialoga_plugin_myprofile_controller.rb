@@ -4,7 +4,8 @@ class DialogaPluginMyprofileController < MyProfileController
   before_filter :is_admin
 
   def send_report
-    report_path = Time.zone.now.strftime('%Y-%m-%d-%H-%m-%S')
+    report_path = Time.zone.now.strftime('%Y-%m-%d-%H-%M-%S')
+    DialogaPlugin::ReportJob.create_report_path(profile, report_path)
     Delayed::Job.enqueue(DialogaPlugin::ReportJob.new(profile.id, report_path))
     Delayed::Job.enqueue(DialogaPlugin::RankingJob.new(profile.id, report_path))
     Delayed::Job.enqueue(DialogaPlugin::EventJob.new(profile.id, report_path))

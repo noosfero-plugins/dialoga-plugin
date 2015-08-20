@@ -3,7 +3,7 @@ class DialogaPlugin::ReportJob < Struct.new(:profile_id, :report_path)
 
   include ActionDispatch::TestProcess
 
-  def create_report_path(profile)
+  def self.create_report_path(profile, report_path)
     root_report_folder = profile.folders.where(:slug => 'relatorios').first
     root_report_folder ||= Folder.create!(:profile => profile, :name => 'Relatorios')
     FileUtils.mkdir_p "/tmp/#{report_path}"
@@ -23,7 +23,7 @@ class DialogaPlugin::ReportJob < Struct.new(:profile_id, :report_path)
 
   def perform
     profile = Profile.find(profile_id)
-    report_folder = create_report_path(profile)
+    report_folder = DialogaPlugin::ReportJob.create_report_path(profile, report_path)
     create_proposals_report(profile, report_folder)
   end
 

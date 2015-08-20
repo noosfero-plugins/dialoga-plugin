@@ -3,7 +3,7 @@ class DialogaPlugin::EventJob < DialogaPlugin::ReportJob
 
   def perform
     profile = Profile.find(profile_id)
-    report_folder = create_report_path(profile)
+    report_folder = DialogaPlugin::ReportJob.create_report_path(profile, report_path)
     create_event_report(profile, report_folder)
   end
 
