@@ -16,15 +16,14 @@ class DialogaPlugin::RankingJob < DialogaPlugin::ReportJob
         ranking = article.ranking
         next if ranking.empty?
 
-        filepath = '/tmp/' + DateTime.now.strftime('%Y-%m-%d-%H-%m-%S') + '-' + "ranking_#{discussion.slug}_#{article.slug}.csv"
+        filepath = "/tmp/#{report_path}/ranking-#{discussion.slug}_#{article.slug}.csv"
         CSV.open(filepath, 'w' ) do |csv|
           csv << ['Posição', 'Id', 'Proposta', 'Positivo', 'Negativo', 'Exibições', 'Valor']
           ranking.each_with_index {|r, i| csv << [i+1, r.values].flatten}
         end
-        uploaded_file = UploadedFile.new(:uploaded_data => fixture_file_upload(filepath, 'text/csv'), :profile => profile, :parent => report_folder)
-        uploaded_file.save
       end
     end
+    upload_file(compress_files('rankings', 'ranking-*'), profile, report_folder)
   end
 
 end

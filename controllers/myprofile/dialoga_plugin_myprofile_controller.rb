@@ -4,10 +4,11 @@ class DialogaPluginMyprofileController < MyProfileController
   before_filter :is_admin
 
   def send_report
-    Delayed::Job.enqueue(DialogaPlugin::ReportJob.new(profile.id))
-    Delayed::Job.enqueue(DialogaPlugin::RankingJob.new(profile.id))
-    Delayed::Job.enqueue(DialogaPlugin::EventJob.new(profile.id))
-    session[:notice] = _("Favor aguardar: o relatório será criado na pasta Relatorios")
+    report_path = Time.zone.now.strftime('%Y-%m-%d-%H-%m-%S')
+    Delayed::Job.enqueue(DialogaPlugin::ReportJob.new(profile.id, report_path))
+    Delayed::Job.enqueue(DialogaPlugin::RankingJob.new(profile.id, report_path))
+    Delayed::Job.enqueue(DialogaPlugin::EventJob.new(profile.id, report_path))
+    session[:notice] = _("Favor aguardar: o relatório será criado na pasta Relatorios/#{report_path}")
     redirect_to :back
   end
 

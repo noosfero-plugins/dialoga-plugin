@@ -10,7 +10,7 @@ class DialogaPlugin::EventJob < DialogaPlugin::ReportJob
   def create_event_report(profile, report_folder)
     events = Event.where(:profile_id => profile.id)
     events.map do |event|
-      filepath = '/tmp/' + DateTime.now.strftime('%Y-%m-%d-%H-%m-%S') + '-' + event.slug + '.csv'
+      filepath = "/tmp/#{report_path}/evento-#{event.slug}.csv"
       file = File.open(File.join(filepath), 'w+')
       file.write(event.name+ "\n")
       header = "'Nome';'Email'\n"
@@ -26,9 +26,8 @@ class DialogaPlugin::EventJob < DialogaPlugin::ReportJob
         file.write("\n")
       end
       file.close
-      uploaded_file = UploadedFile.new(:uploaded_data => fixture_file_upload(filepath, 'text/csv'), :profile => profile, :parent => report_folder)
-      uploaded_file.save
     end
+    upload_file(compress_files('eventos', 'evento-*'), profile, report_folder)
   end
 
 end
