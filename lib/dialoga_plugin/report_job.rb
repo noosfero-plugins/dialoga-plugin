@@ -1,3 +1,4 @@
+require 'csv'
 class DialogaPlugin::ReportJob < Struct.new(:profile_id, :report_path)
 
   include ActionDispatch::TestProcess
@@ -28,37 +29,35 @@ class DialogaPlugin::ReportJob < Struct.new(:profile_id, :report_path)
 
   def create_proposals_report(profile, report_folder)
     filepath = "/tmp/#{report_path}/propostas.csv"
-    file = File.open(filepath, 'w+')
 
-    tasks = ProposalsDiscussionPlugin::ProposalTask.all
-    count = 0
-    header = "'Origem';'Status';'Criada em';'Moderado por';'Data de Moderado';'Validado por';'Data de Validado';'Autor';'Proposta';'Categorias'\n"
-    file.write(header)
-    status_translation = {
-      1 => 'Pendente de Moderacao',
-      2 => 'Rejeitada',
-      3 => 'Aprovada',
-      5 => 'Pre Aprovada',
-      6 => 'Pre Rejeitada',
-    }
-    tasks.map do |task|
-      count += 1
-      puts "%s de %s: adicionando task: %s" % [count, tasks.count, task.id ]
-      info = []
-      info.push(task.proposal_source)
-      info.push(status_translation[task.status])
-      info.push(task.created_at.strftime("%d/%m/%y %H:%M"))
-      info.push(task.proposal_evaluation.present? && task.proposal_evaluation.evaluated_by.present? ? task.proposal_evaluation.evaluated_by.name : '')
-      info.push(task.proposal_evaluation.present? ? task.proposal_evaluation.created_at.strftime("%d/%m/%y %H:%M") : '')
-      info.push(task.closed_by.present? ? task.closed_by.name : '')
-      info.push(task.closed_by.present? ? task.end_date.strftime("%d/%m/%y %H:%M") : '')
-      info.push(task.requestor.present? ? task.requestor.name : '')
-      info.push(task.categories.map {|c| c.name}.join(', '))
-      file.write(info.map{|i| "'" + i.to_s + "'"}.join(";"))
-      file.write("\n")
+    CSV.open(filepath, 'w' ) do |csv|
+      tasks = ProposalsDiscussionPlugin::ProposalTask.all
+      count = 0
+      csv << ['Origem', 'Status', 'Criada em', 'Moderado por', 'Data de Moderado', 'Validado por', 'Data de Validado', 'Autor', 'Proposta', 'Categorias']
+      status_translation = {
+        1 => 'Pendente de Moderacao',
+        2 => 'Rejeitada',
+        3 => 'Aprovada',
+        5 => 'Pre Aprovada',
+        6 => 'Pre Rejeitada',
+      }
+      tasks.map do |task|
+        count += 1
+        puts "%s de %s: adicionando task: %s" % [count, tasks.count, task.id ]
+        info = []
+        info.push(task.proposal_source)
+        info.push(status_translation[task.status])
+        info.push(task.created_at.strftime("%d/%m/%y %H:%M"))
+        info.push(task.proposal_evaluation.present? && task.proposal_evaluation.evaluated_by.present? ? task.proposal_evaluation.evaluated_by.name : '')
+        info.push(task.proposal_evaluation.present? ? task.proposal_evaluation.created_at.strftime("%d/%m/%y %H:%M") : '')
+        info.push(task.closed_by.present? ? task.closed_by.name : '')
+        info.push(task.closed_by.present? ? task.end_date.strftime("%d/%m/%y %H:%M") : '')
+        info.push(task.requestor.present? ? task.requestor.name : '')
+        info.push(task.abstract.present? ? task.abstract.gsub(/\s+/, ' ').strip : '')
+        info.push(task.categories.map {|c| c.name}.join(' '))
+        csv << info
+      end
     end
-
-    file.close
     upload_file(filepath, profile, report_folder)
   end
 
