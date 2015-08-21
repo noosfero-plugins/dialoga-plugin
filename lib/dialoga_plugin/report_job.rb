@@ -16,8 +16,8 @@ class DialogaPlugin::ReportJob < Struct.new(:profile_id, :report_path)
   end
 
   def compress_files(filename, pattern)
-    filepath = "/tmp/#{report_path}/#{filename}.tar.gz"
-    system("cd /tmp/#{report_path} && tar -zcvf #{filepath} #{pattern}")
+    filepath = "/tmp/#{report_path}/#{filename}.zip"
+    system("cd /tmp/#{report_path} && zip #{filepath} #{pattern}")
     filepath
   end
 
