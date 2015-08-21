@@ -45,7 +45,7 @@ class DialogaPlugin::ReportJob < Struct.new(:profile_id, :report_path)
         count += 1
         puts "%s de %s: adicionando task: %s" % [count, tasks.count, task.id ]
         info = []
-        info.push(task.article_parent.nil? ? '' : task.article_parent.categories.join(' '))
+        info.push(task.article_parent.nil? ? '' : task.article_parent.categories.map(&:name).join(' '))
         info.push(task.proposal_source)
         info.push(status_translation[task.status])
         info.push(task.created_at.strftime("%d/%m/%y %H:%M"))
