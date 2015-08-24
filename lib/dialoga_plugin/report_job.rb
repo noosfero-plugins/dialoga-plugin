@@ -30,7 +30,7 @@ class DialogaPlugin::ReportJob < Struct.new(:profile_id, :report_path)
   def create_proposals_report(profile, report_folder)
     filepath = "/tmp/#{report_path}/propostas.csv"
 
-    CSV.open(filepath, 'w', {:col_sep => ';'} ) do |csv|
+    CSV.open(filepath, 'w', {:col_sep => ';', :force_quotes => true} ) do |csv|
       tasks = ProposalsDiscussionPlugin::ProposalTask.all
       count = 0
       csv << ['Tema', 'Origem', 'Status', 'Criada em', 'Moderado por', 'Data de Moderado', 'Validado por', 'Data de Validado', 'Autor', 'Proposta', 'Categorias']
