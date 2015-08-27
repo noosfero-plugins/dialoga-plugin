@@ -11,21 +11,19 @@ class DialogaPlugin::EventJob < DialogaPlugin::ReportJob
     events = Event.where(:profile_id => profile.id)
     events.map do |event|
       filepath = "/tmp/#{report_path}/evento-#{event.slug}.csv"
-      file = File.open(File.join(filepath), 'w+')
-      file.write(event.name+ "\n")
-      header = "'Nome';'Email'\n"
-      file.write(header)
       count = 0
-      event.person_followers.map do |person|
-        count += 1
-        puts "%s de %s: adicionando evento: %s" % [count, event.person_followers.count, event.id ]
-        info = []
-        info.push(person.name)
-        info.push(person.email)
-        file.write(info.map{|i| "'" + i.to_s + "'"}.join(";"))
-        file.write("\n")
+      CSV.open(filepath, 'w', {:col_sep => ';', :force_quotes => true} ) do |csv|
+        csv << [event.name]
+        csv << ['Nome', 'Email']
+        event.person_followers.map do |person|
+          count += 1
+          puts "%s de %s: adicionando evento: %s" % [count, event.person_followers.count, event.id ]
+          info = []
+          info.push(person.name)
+          info.push(person.email)
+          csv << info
+        end
       end
-      file.close
     end
     upload_file(compress_files('eventos', 'evento-*'), profile, report_folder)
   end
