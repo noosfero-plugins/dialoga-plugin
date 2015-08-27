@@ -9,7 +9,7 @@ class DialogaPluginMyprofileController < MyProfileController
     Delayed::Job.enqueue(DialogaPlugin::ReportJob.new(profile.id, report_path))
     Delayed::Job.enqueue(DialogaPlugin::RankingJob.new(profile.id, report_path))
     Delayed::Job.enqueue(DialogaPlugin::EventJob.new(profile.id, report_path))
-    session[:notice] = _("Favor aguardar: o relatório será criado na pasta Relatorios/#{report_path}")
+    session[:notice] = _("Favor aguardar: o relatório será criado na pasta Relatorios/%s") % report_path
     redirect_to :back
   end
 
