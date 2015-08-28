@@ -1,17 +1,12 @@
 class DialogaPlugin::API < Grape::API
 
-#  resource :states do
-#
-#    get do
-#      states = State.select([:id, :name]).order(:name)
-#      present states
-#    end
-#
-#    get ':id/cities' do
-#      state = State.find(params[:id])
-#      cities = City.where(:parent_id => state.id).select([:id, :name]).order(:name)
-#      present cities
-#    end
-#
-#  end
+  resource :dialoga_plugin do
+      get 'random_topics/:discussion_id' do 
+          discussion = ProposalsDiscussionPlugin::Discussion.find(params[:discussion_id])
+          
+          # render articles using Entity Article
+          present discussion.random_topics_one_by_category, :with => Noosfero::API::Entities::Article, :fields => params[:fields]
+      end
+  end
+
 end

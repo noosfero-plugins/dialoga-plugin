@@ -8,8 +8,8 @@ class DialogaPlugin < Noosfero::Plugin
     _("Provide a plugin to dialoga environment.")
   end
 
-#  def self.api_mount_points
-#    [JuventudePlugin::API]
-#  end
+  def self.api_mount_points
+    [DialogaPlugin::API ]
+  end
 
 end
