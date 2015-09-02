@@ -19,7 +19,7 @@ class DialogaPlugin::RankingJob < DialogaPlugin::ReportJob
         filepath = "/tmp/#{report_path}/ranking-#{discussion.slug}_#{article.slug}.csv"
         CSV.open(filepath, 'w', {:col_sep => ';', :force_quotes => true}) do |csv|
           csv << ['Posição', 'Id', 'Proposta', 'Positivo', 'Negativo', 'Exibições', 'Valor']
-          ranking.each_with_index {|r, i| csv << [i+1, r.values].flatten}
+          ranking.each_with_index {|r, i| csv << [r.position, r.id, r.abstract, r.votes_for, r.votes_against, r.hits, r.effective_support].flatten}
         end
       end
     end
