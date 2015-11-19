@@ -33,7 +33,7 @@ class DialogaPlugin::ReportJob < Struct.new(:profile_id, :report_path)
     CSV.open(filepath, 'w', {:col_sep => ';', :force_quotes => true} ) do |csv|
       tasks = ProposalsDiscussionPlugin::ProposalTask.all
       count = 0
-      csv << ['Origem', 'Status', 'Criada em', 'Moderado por', 'Data de Moderado', 'Validado por', 'Data de Validado', 'Autor', 'Proposta', 'Categorias', 'Tema']
+      csv << ['Origem', 'Status', 'Criada em', 'Moderado por', 'Data de Moderado', 'Validado por', 'Data de Validado', 'Autor', 'Proposta', 'Categorias', 'Tema', 'Email do Autor']
       status_translation = {
         1 => 'Pendente de Moderacao',
         2 => 'Rejeitada',
@@ -56,6 +56,7 @@ class DialogaPlugin::ReportJob < Struct.new(:profile_id, :report_path)
         info.push(task.abstract.present? ? task.abstract.gsub(/\s+/, ' ').strip : '')
         info.push(task.categories.map {|c| c.name}.join(' '))
         info.push(task.article_parent.nil? ? '' : task.article_parent.categories.map(&:name).join(' '))
+        info.push(task.requestor.present? ? task.requestor.email : '')
         csv << info
       end
     end
